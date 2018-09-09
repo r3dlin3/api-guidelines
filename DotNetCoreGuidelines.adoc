@@ -1,0 +1,80 @@
+= Guidelines for .Net Core REST API
+:Date: 2018-09-08
+:Revision: v1.0
+:toc:
+:sectnums:
+
+== Introduction
+
+This document is there to document required configuration or development to meet requirements setup in the API guidelines.
+
+IMPORTANT: This document is base on *.NET Core 2.1*.
+
+[bibliography]
+=== References
+https://blogs.msdn.microsoft.com/webdev/2018/02/02/asp-net-core-2-1-roadmap/
+
+== HTTPS
+
+With the increased focus on security and privacy, enabling HTTPS for web apps is more important than ever before. HTTPS enforcement is becoming increasingly strict on the web, and sites that don’t use it are considered, and increasingly labeled as, not secure. Browsers are starting to enforce that many new and existing web features must only be used from an secure context (Chromium, Mozilla). GDPR requires the use of HTTPS to protect user privacy. While using HTTPS in production is critical, using HTTPS during development can also help prevent related issues before deployment, like insecure links.
+On by default
+
+To facilitate secure website development, we are enabling HTTPS in ASP.NET Core 2.1 by default. Starting in 2.1, in addition to listing on http://localhost:5000, Kestrel will listen on https://localhost:5001 when a local development certificate is present. A suitable certificate will be created when the .NET Core SDK is installed or can be manually setup using the new ‘dev-certs’ tool. We will also update our project templates to run on HTTPS by default and include HTTPS redirection and HSTS support.
+HTTPS redirection and enforcement
+
+Web apps typically need to listen on both HTTP and HTTPS, but then redirect all HTTP traffic to HTTPS. ASP.NET Core 2.0 has URL rewrite middleware that can be used for this purpose, but it could be tricky to configure correctly. In 2.1 we are introducing specialized HTTPS redirection middleware that intelligently redirects based on the presence of configuration or bound server ports.
+
+Use of HTTPS can be further enforced using HTTP Strict Transport Security Protocol (HSTS), which instructs browsers to always access the site via HTTPS. ASP.NET Core 2.1 adds HSTS middleware that supports options for max age, subdomains, and the HSTS preload list.
+Configuration for production
+
+In production, HTTPS must be explicitly configured. In 2.1 we are introducing default configuration schema for configuring HTTPS for Kestrel that is simple and straightforward. You can configure multiple endpoints including the URLs and the certificate to use for HTTPS either from a file on disk or from a certificate store:
+{
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "http://localhost:5005"
+      },
+
+      "HttpsInlineCertFile": {
+        "Url": "https://localhost:5005",
+        "Certificate": {
+          "Path": "<path to .pfx file>",
+          "Password": "<cert password>"
+        }
+      },
+
+      "HttpsInlineCertStore": {
+        "Url": "https://localhost:5005",
+        "Certificate": {
+          "Subject": "",
+          "Store": "",
+          "Location": "",
+          "AllowInvalid": "" // Set to true to allow invalid certificates (e.g. self-signed)
+        }
+      },
+
+      // This uses the cert defined under Certificates/Default or the development cert.
+      "HttpsDefaultCert": {
+        "Url": "https://localhost:5005"
+      }
+    }
+  },
+  "Certificates": {
+    "Default": {
+      "Path": "<file>",
+      "Password": "<password>"
+    },
+
+    // From cert store:
+    "Default": {
+      "Subject": "",
+      "Store": "",
+      "Location": "",
+      "AllowInvalid": "" // Set to "true" to allow invalid certificates (e.g. self-signed)
+    }
+  }
+}
+
+== Support for Problem Details
+
+We are adding support for RFC 7808 – Problem Details for HTTP APIs as a standardized format for returning machine readable error responses from HTTP APIs. You can return a Problem Details response from your API action using the ValidationProblem() helper method.
