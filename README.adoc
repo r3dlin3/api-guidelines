@@ -25,7 +25,7 @@ The guidelines are based on various sources all listed below in the section <<Re
 - [[[rfc7807]]] RFC7807, Problem Details for HTTP APIs, https://tools.ietf.org/html/rfc7807
 - [[[restcase]]] 5 Basic REST API Design Guidelines, https://blog.restcase.com/5-basic-rest-api-design-guidelines/
 - [[[OpenAPI]]] The OpenAPI Specification, https://github.com/OAI/OpenAPI-Specification    
-
+- [[[Zalando]]] Zalando RESTful API and Event Scheme Guidelines, https://opensource.zalando.com/restful-api-guidelines/
 
 === License
 
